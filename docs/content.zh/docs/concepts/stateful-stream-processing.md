@@ -24,12 +24,10 @@ under the License.
 
 # 有状态流处理
 
-## What is State?
+## 什么是状态？
 
-While many operations in a dataflow simply look at one individual *event at a
-time* (for example an event parser), some operations remember information
-across multiple events (for example window operators). These operations are
-called **stateful**.
+尽管数据流中的许多操作仅仅是*一次检查一个事件*（例如事件解析器），
+但有些操作会跨多个事件记住信息（例如窗口操作）。这些操作被称为**有状态的**。
 
 Some examples of stateful operations:
 
@@ -46,8 +44,8 @@ Flink needs to be aware of the state in order to make it fault tolerant using
 [checkpoints]({{< ref "docs/dev/datastream/fault-tolerance/checkpointing" >}})
 and [savepoints]({{< ref "docs/ops/state/savepoints" >}}).
 
-Knowledge about the state also allows for rescaling Flink applications, meaning
-that Flink takes care of redistributing state across parallel instances.
+对状态的了解还使得 Flink 应用能够进行重新缩放，也就是说，
+Flink 会负责在各个并行实例间自动管理状态的重新分配。
 
 When working with state, it might also be useful to read about [Flink's state
 backends]({{< ref "docs/ops/state/state_backends" >}}). Flink
