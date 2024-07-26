@@ -1,5 +1,5 @@
 ---
-title: Native Kubernetes
+title: 原生 Kubernetes
 weight: 3
 type: docs
 aliases:
@@ -27,32 +27,34 @@ under the License.
 
 # 原生 Kubernetes
 
-本页介绍如何在[Kubernetes](https://kubernetes.io)上原生部署Flink。
+本页介绍如何在[Kubernetes](https://kubernetes.io)上原生部署 Flink。
 
-## 开始使用
+<a name="getting-started"></a>
 
-本入门指南部分将引导你完成在 Kubernetes 上搭建一个完整功能的 Flink 集群的全过程。
+## 入门指南
+
+本*入门指南*将引导你完成在 Kubernetes 上搭建一个完整功能的 Flink 集群的全过程。
 
 ### 介绍
 
-Kubernetes是一个流行的容器编排系统，可以为应用程序提供自动化的部署、缩放和管理。
+Kubernetes 是一个流行的容器编排系统，可以为应用程序提供自动化的部署、缩放和管理。
 Flink 的原生 Kubernetes 集成可以让你直接在运行的 Kubernetes 集群上部署 Flink。
 此外，由于 Flink 可以直接与 Kubernetes 通信，因此它能够根据所需资源动态地分配和取消分配 TaskManagers。
 
 ### 准备
 
-"开始" 部分假设你已经运行了一个满足以下要求的 Kubernetes 集群：
+*入门指南*假设你已经运行了一个满足以下要求的 Kubernetes 集群：
 
 - Kubernetes >= 1.9。
-- KubeConfig，能够列出、创建、删除 pods 和 services ，可通过 `~/.kube/config` 设置。你可以通过运行 `kubectl auth can-i <list|create|edit|delete> pods` 检查权限。
+- KubeConfig，能够列出、创建、删除 pods 和 services，可通过`~/.kube/config`设置。你可以通过运行`kubectl auth can-i <list|create|edit|delete> pods`检查权限。
 - 已启用 Kubernetes DNS。
-- 具有 RBAC（#rbac）权限能够创建和删除 pods 的默认服务账户。
+- 具有[RBAC](#rbac)权限能够创建和删除 pods 的默认服务账户。
 
-如果你在设置 Kubernetes 集群时遇到问题，请参考 [如何设置 Kubernetes 集群](https://kubernetes.io/docs/setup/)。
+如果你在设置 Kubernetes 集群时遇到问题，请参考[如何设置 Kubernetes 集群](https://kubernetes.io/docs/setup/)。
 
-### 在Kubernetes上启动Flink会话
+### 在 Kubernetes 上启动 Flink 会话
 
-当你的Kubernetes集群运行起来，并且`kubectl`已配置指向它，你就可以通过[会话模式]({{< ref "docs/deployment/overview" >}}#session-mode)启动一个Flink集群。
+当你的 Kubernetes 集群运行起来，并且`kubectl`已配置指向它，你就可以通过[会话模式]({{< ref "docs/deployment/overview" >}}#session-mode)启动一个 Flink 集群。
 
 ```bash
 # (1) 启动 Kubernetes 会话
@@ -70,7 +72,7 @@ $ kubectl delete deployment/my-first-flink-cluster
 ```
 
 {{< hint info >}}
-默认情况下，Flink 的 Web UI 和 REST 端点以 `ClusterIP` 服务的形式暴露。要访问该服务，请参阅[访问 Flink 的 Web UI](#accessing-flinks-web-ui) 获取说明。
+默认情况下，Flink 的 Web UI 和 REST 端点以`ClusterIP`服务的形式暴露。要访问该服务，请参阅[访问 Flink 的 Web UI](#accessing-flinks-web-ui) 获取说明。
 {{< /hint >}}
 
 恭喜！你已成功在 Kubernetes 上部署 Flink 并运行了一个 Flink 应用程序。
@@ -79,18 +81,20 @@ $ kubectl delete deployment/my-first-flink-cluster
 
 ## 部署模式
 
-对于生产使用，我们推荐在[应用模式]({{< ref "docs/deployment/overview" >}}#application-mode)下部署Flink应用程序，因为这种模式为应用程序提供了更好的隔离。
+对于生产使用，我们推荐在[应用模式]({{< ref "docs/deployment/overview" >}}#application-mode)下部署 Flink 应用程序，因为这种模式为应用程序提供了更好的隔离。
+
+<a name="application-mode"></a>
 
 ### 应用程序模式
 
-[应用模式]({{< ref "docs/deployment/overview" >}}#application-mode)要求用户代码与Flink镜像一起打包，因为它会在集群上运行用户代码的`main()`方法。
+[应用模式]({{< ref "docs/deployment/overview" >}}#application-mode)要求用户代码与 Flink 镜像一起打包，因为它会在集群上运行用户代码的`main()`方法。
 应用模式确保在应用程序终止后清理所有Flink组件。
-可以通过修改基础Flink Docker镜像或通过用户 Artifact 管理进行打包，这使得可以上传和下载本地不可用的制品。
+可以通过修改基础 Flink Docker 镜像或通过用户 Artifact 管理进行打包，这使得可以上传和下载本地不可用的制品。
 
 
 #### 修改 Docker 镜像
 
-Flink 社区提供了一个 [基础 Docker 镜像]({{< ref "docs/deployment/resource-providers/standalone/docker" >}}#docker-hub-flink-images)，可以用来打包用户代码：
+Flink 社区提供了一个[基础 Docker 镜像]({{< ref "docs/deployment/resource-providers/standalone/docker" >}}#docker-hub-flink-images)，可以用来打包用户代码：
 
 ```dockerfile
 FROM flink
@@ -98,7 +102,7 @@ RUN mkdir -p $FLINK_HOME/usrlib
 COPY /path/of/my-flink-job.jar $FLINK_HOME/usrlib/my-flink-job.jar
 ```
 
-在创建并发布名为`custom-image-name`的Docker镜像后，你可以使用以下命令启动一个应用集群：
+在创建并发布名为`custom-image-name`的 Docker 镜像后，你可以使用以下命令启动一个应用集群：
 
 ```bash
 $ ./bin/flink run-application \
@@ -110,7 +114,7 @@ $ ./bin/flink run-application \
 
 #### 配置用户 Artifact 管理
 
-如果你有一个本地可用的Flink作业JAR包，可以使用制品上传功能，以便在部署时让Flink将本地制品上传到DFS，并在部署的JobManager pod上获取它：
+如果你有一个本地可用的 Flink 作业 JAR 包，可以使用制品上传功能，以便在部署时让Flink将本地制品上传到 DFS，并在部署的 JobManager pod 上获取它：
 
 ```bash
 $ ./bin/flink run-application \
@@ -122,9 +126,9 @@ $ ./bin/flink run-application \
     local:///tmp/my-flink-job.jar
 ```
 
-`kubernetes.artifacts.local-upload-enabled` 选项启用此功能，而 `kubernetes.artifacts.local-upload-target` 需要指向一个有效且权限设置正确的远程目标。
+`kubernetes.artifacts.local-upload-enabled`选项启用此功能，而`kubernetes.artifacts.local-upload-target`需要指向一个有效且权限设置正确的远程目标。
 
-可以通过 `user.artifacts.artifact-list` 配置选项添加额外的制品，该选项可以包含本地和远程制品的组合：
+可以通过`user.artifacts.artifact-list`配置选项添加额外的制品，该选项可以包含本地和远程制品的组合：
 
 ```bash
 $ ./bin/flink run-application \
@@ -137,7 +141,7 @@ $ ./bin/flink run-application \
     local:///tmp/my-flink-job.jar
 ```
 
-如果作业 JAR 包或任何其他附加制品已经通过DFS或HTTP(S)远程可用，Flink将简单地在部署的JobManager pod上获取它。
+如果作业 JAR 包或任何其他附加制品已经通过 DFS 或 HTTP(S) 远程可用，Flink 将简单地在部署的 JobManager pod 上获取它。
 
 ```bash
 # FileSystem
@@ -167,7 +171,7 @@ JAR 将被下载到镜像中的 [user.artifacts.base-dir]({{< ref "docs/deployme
 `kubernetes.cluster-id` 选项指定了集群的名称，必须是唯一的。
 如果不指定此选项，Flink 将生成一个随机名称。
 
-`kubernetes.container.image.ref` 选项指定了启动Pod所使用的镜像。
+`kubernetes.container.image.ref`选项指定了启动 Pod 所使用的镜像。
 
 一旦应用程序集群部署完成，你就可以与其进行交互：
 
@@ -178,11 +182,13 @@ $ ./bin/flink list --target kubernetes-application -Dkubernetes.cluster-id=my-fi
 $ ./bin/flink cancel --target kubernetes-application -Dkubernetes.cluster-id=my-first-application-cluster <jobId>
 ```
 
-你可以通过向 `bin/flink` 传递键值对 `-Dkey=value` 来覆盖 [Flink配置文件]{{< ref "docs/deployment/config#flink-配置文件" >}} 中的设置。
+你可以通过向`bin/flink`传递键值对`-Dkey=value`来覆盖[Flink配置文件]{{< ref "docs/deployment/config#flink-配置文件" >}}中的设置。
 
 ### Per-Job 集群模式
 
 在 Kubernetes 上的 Flink 不支持 Per-Job 集群模式。
+
+<a name="session-mode"></a>
 
 ### Session 模式
 
@@ -204,11 +210,11 @@ $ ./bin/kubernetes-session.sh \
     -Dexecution.attached=true
 ```
 
-你可以通过向 `bin/kubernetes-session.sh` 传递键值对 `-Dkey=value` 来覆盖 [Flink 配置文件]({{< ref "docs/zh/deployment/config#flink-配置文件" >}}) 中的设置。
+你可以通过向`bin/kubernetes-session.sh`传递键值对`-Dkey=value`来覆盖 [Flink 配置文件]({{< ref "docs/zh/deployment/config#flink-配置文件" >}}) 中的设置。
 
 #### 停止一个正在运行的 Session 集群
 
-要停止具有集群ID `my-first-flink-cluster` 的运行中的Session 集群，你可以[删除Flink部署](#manual-resource-cleanup)或使用：
+要停止具有集群ID`my-first-flink-cluster`的运行中的 Session 集群，你可以[删除Flink部署](#manual-resource-cleanup)或使用：
 
 ```bash
 $ echo 'stop' | ./bin/kubernetes-session.sh \
@@ -234,14 +240,16 @@ containerized.master.env.KUBERNETES_MAX_CONCURRENT_REQUESTS: 200
 env.java.opts.jobmanager: "-Dkubernetes.max.concurrent.requests=200"
 ```
 
+<a name="accessing-flinks-web-ui"></a>
+
 ### 访问 Flink 的 Web UI
 
-可以通过 [kubernetes.rest-service.exposed.type]({{< ref "docs/deployment/config" >}}#kubernetes-rest-service-exposed-type) 配置选项以多种方式开放 Flink 的 Web UI 和 REST 端点。
+可以通过[kubernetes.rest-service.exposed.type]({{< ref "docs/deployment/config" >}}#kubernetes-rest-service-exposed-type)配置选项以多种方式开放 Flink 的 Web UI 和 REST 端点。
 
 - **ClusterIP**：在集群内部 IP 上公开服务。
   服务只能在集群内访问。
   如果要访问 JobManager UI 或向现有会话提交作业，需要启动本地代理。
-  然后你可以使用 `localhost:8081` 向会话提交 Flink 作业或查看仪表板。
+  然后你可以使用`localhost:8081`向会话提交 Flink 作业或查看仪表板。
 
 ```bash
 $ kubectl port-forward service/<ServiceName> 8081
@@ -250,10 +258,10 @@ $ kubectl port-forward service/<ServiceName> 8081
   `<NodeIP>:<NodePort>` 联系 JobManager 服务。
 
 - **LoadBalancer**：使用云提供商的负载均衡器外部公开服务。
-  由于云提供商和 Kubernetes 需要一些时间来准备负载均衡器，你可能会在客户端日志中看到一个 `NodePort` JobManager Web 界面。
-  你可以使用 `kubectl get services/<cluster-id>-rest` 获取 EXTERNAL-IP，并手动构造负载均衡器 JobManager Web 界面 `http://<EXTERNAL-IP>:8081`。
+  由于云提供商和 Kubernetes 需要一些时间来准备负载均衡器，你可能会在客户端日志中看到一个`NodePort` JobManager Web 界面。
+  你可以使用`kubectl get services/<cluster-id>-rest`获取 EXTERNAL-IP，并手动构造负载均衡器 JobManager Web 界面`http://<EXTERNAL-IP>:8081`。
 
-更多信息，请参阅 Kubernetes 的官方文档 [在 Kubernetes 中发布服务](https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types)。
+更多信息，请参阅 Kubernetes 的官方文档[在 Kubernetes 中发布服务](https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types)。
 
 {{< hint warning >}}
 根据你的环境，使用 `LoadBalancer` 类型的 REST 服务公开的 Flink 集群可能会使集群对外部公开（通常具有执行任意代码的能力）。
@@ -261,12 +269,12 @@ $ kubectl port-forward service/<ServiceName> 8081
 
 ### 日志记录
 
-Kubernetes 集成将 `conf/log4j-console.properties` 和 `conf/logback-console.xml` 作为 ConfigMap 映射到各个 Pod。
+Kubernetes 集成将`conf/log4j-console.properties`和`conf/logback-console.xml`作为 ConfigMap 映射到各个 Pod。
 对这些文件的更改将在新启动的集群中可见。
 
 #### 访问日志
 
-默认情况下，JobManager 和 TaskManager 将日志同时输出到控制台和每个 Pod 中的 `/opt/flink/log`。
+默认情况下，JobManager 和 TaskManager 将日志同时输出到控制台和每个 Pod 中的`/opt/flink/log`。
 STDOUT 和 STDERR 输出只会重定向到控制台。
 可以通过以下方式访问它们：
 
@@ -285,7 +293,7 @@ $ kubectl logs <pod-name>
 
 #### 动态更改日志级别
 
-如果已配置日志记录器以 [自动检测配置更改]({{< ref "docs/deployment/advanced/logging" >}})，则可以通过更改相应的 ConfigMap（假设集群 ID 为 `my-first-flink-cluster`）来动态调整日志级别：
+如果已配置日志记录器以[自动检测配置更改]({{< ref "docs/deployment/advanced/logging" >}})，则可以通过更改相应的 ConfigMap（假设集群 ID 为`my-first-flink-cluster`）来动态调整日志级别：
 
 ```bash
 $ kubectl edit cm flink-config-my-first-flink-cluster
@@ -293,13 +301,13 @@ $ kubectl edit cm flink-config-my-first-flink-cluster
 
 #### 访问TaskManager日志
 
-为避免浪费资源，Flink会自动释放空闲的TaskManagers。
-这种行为可能使得访问相应Pod的日志变得困难。
+为避免浪费资源，Flink 会自动释放空闲的 TaskManagers。
+这种行为可能使得访问相应 Pod 的日志变得困难。
 你可以通过配置[resourcemanager.taskmanager-timeout]({{< ref "docs/deployment/config" >}}#resourcemanager-taskmanager-timeout)来延长空闲TaskManager被释放之前的时间，以便有更多时间检查日志文件。
 
 #### 动态更改日志级别
 
-如果你已经配置了日志器以[自动检测配置变化]({{< ref "docs/deployment/advanced/logging" >}})，则可以通过修改相应的ConfigMap（假设集群ID为`my-first-flink-cluster`）来动态调整日志级别：
+如果你已经配置了日志器以[自动检测配置变化]({{< ref "docs/deployment/advanced/logging" >}})，则可以通过修改相应的 ConfigMap（假设集群ID为`my-first-flink-cluster`）来动态调整日志级别：
 
 ```bash
 $ kubectl edit cm flink-config-my-first-flink-cluster
@@ -307,9 +315,9 @@ $ kubectl edit cm flink-config-my-first-flink-cluster
 
 ### 使用插件
 
-要使用[插件]({{< ref "docs/deployment/filesystems/plugins" >}})，必须将它们复制到Flink JobManager/TaskManager pod的正确位置。
-你可以在不挂载卷或构建自定义Docker镜像的情况下使用[内置插件]({{< ref "docs/deployment/resource-providers/standalone/docker" >}}#using-plugins)。
-例如，要为你的Flink会话集群启用S3插件，请使用以下命令：
+要使用[插件]({{< ref "docs/deployment/filesystems/plugins" >}})，必须将它们复制到 Flink JobManager/TaskManager pod 的正确位置。
+你可以在不挂载卷或构建自定义 Docker 镜像的情况下使用[内置插件]({{< ref "docs/deployment/resource-providers/standalone/docker" >}}#using-plugins)。
+例如，要为你的 Flink 会话集群启用S3插件，请使用以下命令：
 
 ```bash
 $ ./bin/kubernetes-session.sh \
@@ -317,21 +325,21 @@ $ ./bin/kubernetes-session.sh \
     -Dcontainerized.taskmanager.env.ENABLE_BUILT_IN_PLUGINS=flink-s3-fs-hadoop-{{< version >}}.jar
 ```
 
-### 自定义Docker镜像
+### 自定义 Docker 镜像
 
-如果你想使用自定义Docker镜像，可以通过配置选项`kubernetes.container.image.ref`指定。Flink社区提供了一个丰富的[Flink Docker镜像]({{< ref "docs/deployment/resource-providers/standalone/docker" >}})，这可能是一个很好的起点。
-有关如何启用插件、添加依赖项和其他选项的更多信息，请参阅[如何定制Flink的Docker镜像]({{< ref "docs/deployment/resource-providers/standalone/docker" >}}#customize-flink-image)。
+如果你想使用自定义 Docker 镜像，可以通过配置选项`kubernetes.container.image.ref`指定。 Flink 社区提供了一个丰富的[Flink Docker 镜像]({{< ref "docs/deployment/resource-providers/standalone/docker" >}})，这可能是一个很好的起点。
+有关如何启用插件、添加依赖项和其他选项的更多信息，请参阅[如何定制 Flink 的 Docker 镜像]({{< ref "docs/deployment/resource-providers/standalone/docker" >}}#customize-flink-image)。
 
-### 使用Secrets
+### 使用 Secrets
 
 [Kubernetes Secrets](https://kubernetes.io/docs/concepts/configuration/secret/) 是一个包含少量敏感数据（如密码、令牌或密钥）的对象。
-这些信息可能会放在pod规范或镜像中。在Kubernetes上的Flink可以以两种方式使用Secrets：
+这些信息可能会放在pod规范或镜像中。在Kubernetes上的 Flink 可以以两种方式使用 Secrets：
 
-* 从pod中作为文件使用Secrets；
+* 从pod中作为文件使用 Secrets；
   
-* 作为环境变量使用Secrets。
+* 作为环境变量使用 Secrets。
 
-#### 从Pod中作为文件使用Secrets
+#### 从Pod中作为文件使用 Secrets
 
 以下命令将在启动的pod中将秘密`mysecret`挂载到路径`/path/to/secret`下：
 
@@ -342,7 +350,7 @@ $ ./bin/kubernetes-session.sh -Dkubernetes.secrets=mysecret:/path/to/secret
 然后，可以在文件`/path/to/secret/username`和`/path/to/secret/password`中找到秘密`mysecret`的用户名和密码。
 更多详细信息，请参阅[官方Kubernetes文档](https://kubernetes.io/docs/concepts/configuration/secret/#using-secrets-as-files-from-a-pod)。
 
-#### 作为环境变量使用Secrets
+#### 作为环境变量使用 Secrets
 
 以下命令将在启动的pod中将秘密`mysecret`作为环境变量暴露：
 
@@ -406,7 +414,7 @@ $ kubectl create serviceaccount flink-service-account
 $ kubectl create clusterrolebinding flink-role-binding-flink --clusterrole=edit --serviceaccount=default:flink-service-account
 ```
 
-有关更多信息，请参阅 Kubernetes 官方文档中的 [RBAC 授权](https://kubernetes.io/docs/reference/access-authn-authz/rbac/)。
+有关更多信息，请参阅 Kubernetes 官方文档中的[RBAC 授权](https://kubernetes.io/docs/reference/access-authn-authz/rbac/)。
 
 ### Pod 模板
 
@@ -414,7 +422,7 @@ Flink 允许用户通过模板文件定义 JobManager 和 TaskManager 的 Pod。
 这使得支持 Flink [Kubernetes 配置选项]({{< ref "docs/deployment/config" >}}#kubernetes) 直接不支持的高级功能成为可能。
 使用 `kubernetes.pod-template-file.default`({{< ref "docs/deployment/config" >}}#kubernetes-pod-template-file-default) 指定包含 Pod 定义的本地文件。它将用于初始化 JobManager 和 TaskManager。
 主要容器应命名为 `flink-main-container`。
-有关更多信息，请参阅 [Pod 模板示例](#pod-template 示例)。
+有关更多信息，请参阅[Pod 模板示例](#pod-template 示例)。
 
 
 #### Flink 覆盖的字段
@@ -646,10 +654,10 @@ spec:
 
 ### 用户 jars 和类路径
 
-当在Kubernetes上原生部署Flink时，以下jar文件将被视为用户jar并包含在用户类路径中：
+当在 Kubernetes 上原生部署 Flink 时，以下 JAR 文件将被视为用户 JAR 并包含在用户类路径中：
 
-- 会话模式：启动命令中指定的jar文件。
-- 应用程序模式：启动命令中指定的jar文件以及Flink的`usrlib`文件夹中的所有JAR文件。
+- 会话模式：启动命令中指定的 JAR 文件。
+- 应用程序模式：启动命令中指定的 JAR 文件以及 Flink 的`usrlib`文件夹中的所有JAR文件。
 
 有关详细信息，请参阅[调试类加载文档]({{< ref "docs/ops/debugging/debugging_classloading" >}}#flink中的类加载概述)。
 
